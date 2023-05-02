@@ -119,9 +119,10 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
     paths: pokemonNames.map(name => ({
       params: { name }
     })),
-    fallback: false
+    fallback: 'blocking'
   }
 
+  
 }
 
 // Esto solo se ejecuta del LADO DEL SERVIDOR y en TIEMPO DE CONSTRUCCION (BUILD TIME)
@@ -131,9 +132,20 @@ export const getStaticProps: GetStaticProps = async ({ params }) => { // Se dese
 
   const { name } = params as { name: string }; // Para evitar colocar el tipado complecado
 
+  const pokemon = await getPokemonInfo(name);
+
+  if(!pokemon){
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false
+      }
+    }
+  }
+
   return {
     props: {
-      pokemon: await getPokemonInfo(name)
+      pokemon
     }
   }
   
